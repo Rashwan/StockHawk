@@ -2,6 +2,7 @@ package com.sam_chordas.android.stockhawk.rest;
 
 import android.content.ContentProviderOperation;
 import android.util.Log;
+import android.util.Pair;
 
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
@@ -10,8 +11,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by sam_chordas on 10/8/15.
@@ -60,7 +66,17 @@ public class Utils {
                     .getJSONArray("quote");
             String[] dates = new String[results.length()];
             for (int i = 0; i < results.length(); i++) {
-                dates[i] = results.getJSONObject(i).getString("Date");
+                SimpleDateFormat oldDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                SimpleDateFormat newDateFormat = new SimpleDateFormat("MM-dd", Locale.getDefault());
+                Calendar calendar = Calendar.getInstance();
+                try {
+                    Date date = oldDateFormat.parse(results.getJSONObject(i).getString("Date"));
+                    calendar.setTime(date);
+                    String todayDate = newDateFormat.format(calendar.getTime());
+                    dates[i] = todayDate;
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
             Log.d(LOG_TAG, Arrays.toString(dates));
             return dates;
@@ -69,20 +85,30 @@ public class Utils {
         }
     }
 
-    public static String[] jsonToClosedValue(String json) throws JSONException {
+    public static float[] jsonToClosedValue(String json) throws JSONException {
         JSONObject jsonObject = new JSONObject(json);
         if (jsonObject.length() != 0) {
             JSONArray results = jsonObject.getJSONObject("query").getJSONObject("results")
                     .getJSONArray("quote");
-            String[] closedValues = new String[results.length()];
+            float[] closedValues = new float[results.length()];
             for (int i = 0; i < results.length(); i++) {
-                closedValues[i] = results.getJSONObject(i).getString("Close");
+                closedValues[i] = Float.valueOf(results.getJSONObject(i).getString("Close"));
             }
             Log.d(LOG_TAG, Arrays.toString(closedValues));
             return closedValues;
         } else {
-            return new String[0];
+            return new float[0];
         }
+    }
+
+    public static Pair<Integer,Integer> getMinValue(float[] values){
+        int min = Math.round(values[0]);
+        int max = Math.round(values[0]);
+        for (float value: values) {
+            min = Math.round(Math.min(min,value));
+            max = Math.round(Math.max(max,value));
+        }
+        return new Pair<>(min,max);
     }
 
     public static String truncateBidPrice(String bidPrice) {

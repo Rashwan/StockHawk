@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Pair;
 
+import com.db.chart.model.LineSet;
+import com.db.chart.view.LineChartView;
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.rest.Utils;
 
@@ -29,7 +32,7 @@ public class StockDetailsActivity extends AppCompatActivity {
     private static final String STOCKDETAILSTAG = StockDetailsActivity.class.getSimpleName();
     private String quoteName;
     private OkHttpClient okHttpClient;
-
+    private LineChartView chart;
 
     public static Intent getStockDetailsIntent(Context context,String quote){
         Intent intent = new Intent(context,StockDetailsActivity.class);
@@ -41,6 +44,7 @@ public class StockDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stock_details);
+        chart = (LineChartView) findViewById(R.id.linechart);
         Intent intent  = getIntent();
         quoteName = intent.getStringExtra(EXTRA_QUOTE);
         okHttpClient = new OkHttpClient();
@@ -49,7 +53,8 @@ public class StockDetailsActivity extends AppCompatActivity {
         String todayDate = dateFormat.format(calendar.getTime());
         Log.d("TODAY DATE",todayDate);
 
-        calendar.add(Calendar.MONTH,-1);
+        //// TODO: 8/7/16 Make it dependant on screen size
+        calendar.add(Calendar.DAY_OF_MONTH,-15);
         String minusMonthDate = dateFormat.format(calendar.getTime());
         Log.d("Minus Month DATE",minusMonthDate);
 
@@ -82,8 +87,20 @@ public class StockDetailsActivity extends AppCompatActivity {
                 String result = response.body().string();
                 Log.d(STOCKDETAILSTAG,result);
                 try {
-                    Utils.jsonToDates(result);
-                    Utils.jsonToClosedValue(result);
+                    String[] labels = Utils.jsonToDates(result);
+                    float[] data = Utils.jsonToClosedValue(result);
+                    Pair<Integer,Integer> minMaxValues = Utils.getMinValue(data);
+                    chart.setAxisBorderValues(minMaxValues.first-1,minMaxValues.second+1);
+                    if (minMaxValues.second - minMaxValues.first > 30) {
+                        chart.setStep(10);
+                    }
+                    LineSet lineSet = new LineSet(labels,data);
+                    lineSet.setColor(getResources().getColor(android.R.color.white));
+                    chart.setAxisLabelsSpacing(10f);
+                    chart.setLabelsColor(getResources().getColor(android.R.color.white));
+                    chart.addData(lineSet);
+                    chart.setAxisColor(getResources().getColor(android.R.color.white));
+                    chart.show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
