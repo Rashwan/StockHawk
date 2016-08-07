@@ -60,21 +60,20 @@ public class Utils {
         return batchOperations;
     }
 
-    public static String[] jsonToDates(String json) throws JSONException {
-        Log.d(LOG_TAG, json);
+    public static String[] jsonToLabels(String json) throws JSONException {
+        SimpleDateFormat jsonDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat chartDateFormat = new SimpleDateFormat("MM-dd", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
         JSONObject jsonObject = new JSONObject(json);
         if (jsonObject.length() != 0) {
             JSONArray results = jsonObject.getJSONObject("query").getJSONObject("results")
                     .getJSONArray("quote");
             String[] dates = new String[results.length()];
             for (int i = 0; i < results.length(); i++) {
-                SimpleDateFormat oldDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                SimpleDateFormat newDateFormat = new SimpleDateFormat("MM-dd", Locale.getDefault());
-                Calendar calendar = Calendar.getInstance();
                 try {
-                    Date date = oldDateFormat.parse(results.getJSONObject(i).getString("Date"));
+                    Date date = jsonDateFormat.parse(results.getJSONObject(i).getString("Date"));
                     calendar.setTime(date);
-                    String todayDate = newDateFormat.format(calendar.getTime());
+                    String todayDate = chartDateFormat.format(calendar.getTime());
                     dates[i] = todayDate;
                 } catch (ParseException e) {
                     e.printStackTrace();

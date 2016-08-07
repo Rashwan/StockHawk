@@ -30,14 +30,20 @@ import okhttp3.Response;
 
 public class StockDetailsActivity extends AppCompatActivity {
     private static final String EXTRA_QUOTE = "com.sam_chordas.android.stockhawk.ui.EXTRA_QUOTE";
-    private static final String STOCKDETAILSTAG = StockDetailsActivity.class.getSimpleName();
+    private static final String LOG_TAG = StockDetailsActivity.class.getSimpleName();
+    private static final String BUNDLE_RESPONSE = "BUNDLE_RESPONSE";
     private String quoteName;
     private OkHttpClient okHttpClient;
     private LineChartView chart;
-    private TextView tvQuoteName;
     private TextView tvAverage;
-    private  float averageValue;
     private Boolean isTablet = false;
+    private String endDate;
+    private String startDate;
+    private String[] labels;
+    private float[] data;
+    private Pair<Integer,Integer> minMaxValues;
+    private  String result;
+
 
     public static Intent getStockDetailsIntent(Context context,String quote){
         Intent intent = new Intent(context,StockDetailsActivity.class);
@@ -50,77 +56,73 @@ public class StockDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stock_details);
         chart = (LineChartView) findViewById(R.id.linechart);
-        tvQuoteName = (TextView) findViewById(R.id.text_quote_name);
+        TextView tvQuoteName = (TextView) findViewById(R.id.text_quote_name);
         tvAverage = (TextView) findViewById(R.id.text_average);
         Intent intent  = getIntent();
         quoteName = intent.getStringExtra(EXTRA_QUOTE);
         tvQuoteName.setText(quoteName);
-        okHttpClient = new OkHttpClient();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        Calendar calendar = Calendar.getInstance();
-        String todayDate = dateFormat.format(calendar.getTime());
-        Log.d("TODAY DATE",todayDate);
-        isTablet = Utils.isScreenSW(600);
-        // TODO: 8/7/16 Make it dependant on screen size
-        if (isTablet){
-            calendar.add(Calendar.MONTH, -1);
+
+        if (savedInstanceState == null){
+            setDates();
+            fetchDetails(buildQuery());
         }else {
-            calendar.add(Calendar.DAY_OF_MONTH, -15);
-        }
-        String minusMonthDate = dateFormat.format(calendar.getTime());
-        Log.d("Minus Month DATE",minusMonthDate);
-
-        StringBuilder urlString = new StringBuilder();
-        urlString.append("https://query.yahooapis.com/v1/public/yql?q=");
-        try {
-            urlString.append(URLEncoder.encode("select Date,Close from yahoo.finance.historicaldata where symbol "
-                    + " = ", "UTF-8"));
-            urlString.append(URLEncoder.encode("\"" + quoteName + "\" ","UTF-8"));
-            urlString.append(URLEncoder.encode("and startDate = ","UTF-8"));
-            urlString.append(URLEncoder.encode("\"" + minusMonthDate + "\"","UTF-8"));
-            urlString.append(URLEncoder.encode("and endDate = ","UTF-8"));
-            urlString.append(URLEncoder.encode("\"" + todayDate + "\" ","UTF-8"));
-            urlString.append(URLEncoder.encode("| sort(field=\"Date\")","UTF-8"));
-            urlString.append("&format=json&diagnostics=true&env=http%3A%2F%2Fdatatables.org%2Falltables.env&callback=");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        String detailsUrl = urlString.toString();
-        Log.d("Query URL",detailsUrl);
-        Request request = new Request.Builder().url(detailsUrl).build();
-        okHttpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d(STOCKDETAILSTAG,"request failed",e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String result = response.body().string();
-                Log.d(STOCKDETAILSTAG,result);
+            if (savedInstanceState.getString(BUNDLE_RESPONSE) == null){
+                setDates();
+                fetchDetails(buildQuery());
+            }else {
+                result = savedInstanceState.getString(BUNDLE_RESPONSE);
                 try {
-                    String[] labels = Utils.jsonToDates(result);
-                    float[] data = Utils.jsonToClosedValue(result);
-                    Pair<Integer,Integer> minMaxValues = Utils.getMinMaxValue(data);
-                    averageValue = Utils.getAverageValue(data);
-                    setAverageValue(averageValue);
-                    chart.setAxisBorderValues(minMaxValues.first-1,minMaxValues.second+1);
-                    if (minMaxValues.second - minMaxValues.first > 30) {
-                        chart.setStep(10);
-                    }
-                    LineSet lineSet = new LineSet(labels,data);
-                    lineSet.setColor(getResources().getColor(android.R.color.white));
-                    chart.setAxisLabelsSpacing(10f);
-                    chart.setLabelsColor(getResources().getColor(android.R.color.white));
-                    chart.addData(lineSet);
-                    chart.setAxisColor(getResources().getColor(android.R.color.white));
-                    chart.show();
+                    setQuoteDetails(result);
+                    setChartDetails();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
+        }
+
+    }
+
+    private void fetchDetails(Request request) {
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d(LOG_TAG,"request failed",e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                result = response.body().string();
+                try {
+                    setQuoteDetails(result);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                setChartDetails();
+            }
         });
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(BUNDLE_RESPONSE,result);
+    }
+
+    private void setChartDetails() {
+        LineSet lineSet = new LineSet(labels,data);
+        lineSet.setColor(getResources().getColor(android.R.color.white));
+        chart.setLabelsColor(getResources().getColor(android.R.color.white));
+        chart.setAxisColor(getResources().getColor(android.R.color.white));
+        chart.setAxisLabelsSpacing(10f);
+        chart.setAxisBorderValues(minMaxValues.first-1,minMaxValues.second+1);
+        if (minMaxValues.second - minMaxValues.first > 30) {
+            chart.setStep(10);
+        }
+        chart.addData(lineSet);
+        chart.show();
+    }
+
+
     private void setAverageValue(final float averageValue){
         this.runOnUiThread(new Runnable() {
             @Override
@@ -133,4 +135,45 @@ public class StockDetailsActivity extends AppCompatActivity {
             }
         });
     }
+    private void setDates(){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        Calendar calendar = Calendar.getInstance();
+        endDate = dateFormat.format(calendar.getTime());
+        isTablet = Utils.isScreenSW(600);
+        if (isTablet){
+            calendar.add(Calendar.MONTH, -1);
+        }else {
+            calendar.add(Calendar.DAY_OF_MONTH, -15);
+        }
+        startDate = dateFormat.format(calendar.getTime());
+    }
+
+    private Request buildQuery() {
+        okHttpClient = new OkHttpClient();
+        StringBuilder urlString = new StringBuilder();
+        urlString.append("https://query.yahooapis.com/v1/public/yql?q=");
+        try {
+            urlString.append(URLEncoder.encode("select Date,Close from yahoo.finance.historicaldata where symbol "
+                    + " = ", "UTF-8"));
+            urlString.append(URLEncoder.encode("\"" + quoteName + "\" ","UTF-8"));
+            urlString.append(URLEncoder.encode("and startDate = ","UTF-8"));
+            urlString.append(URLEncoder.encode("\"" + startDate + "\"","UTF-8"));
+            urlString.append(URLEncoder.encode("and endDate = ","UTF-8"));
+            urlString.append(URLEncoder.encode("\"" + endDate + "\" ","UTF-8"));
+            urlString.append(URLEncoder.encode("| sort(field=\"Date\")","UTF-8"));
+            urlString.append("&format=json&diagnostics=true&env=http%3A%2F%2Fdatatables.org%2Falltables.env&callback=");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String detailsUrl =  urlString.toString();
+        return new Request.Builder().url(detailsUrl).build();
+    }
+    private void setQuoteDetails(String result) throws JSONException {
+        labels = Utils.jsonToLabels(result);
+        data = Utils.jsonToClosedValue(result);
+        minMaxValues = Utils.getMinMaxValue(data);
+        float averageValue = Utils.getAverageValue(data);
+        setAverageValue(averageValue);
+    }
+
 }
