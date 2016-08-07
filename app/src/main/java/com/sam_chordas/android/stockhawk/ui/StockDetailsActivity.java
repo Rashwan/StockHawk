@@ -63,6 +63,7 @@ public class StockDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stock_details);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         chart = (LineChartView) findViewById(R.id.linechart);
         tvQuoteName = (TextView) findViewById(R.id.text_quote_name);
         tvAverage = (TextView) findViewById(R.id.text_average);
@@ -72,6 +73,9 @@ public class StockDetailsActivity extends AppCompatActivity {
         layoutOffline = (LinearLayout) findViewById(R.id.layout_offline);
         Intent intent  = getIntent();
         quoteName = intent.getStringExtra(EXTRA_QUOTE);
+        getSupportActionBar().setTitle(quoteName);
+        isTablet = Utils.isScreenSW(600);
+
         if (savedInstanceState == null){
             determineLayout();
         }else {
@@ -182,7 +186,6 @@ public class StockDetailsActivity extends AppCompatActivity {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
         endDate = dateFormat.format(calendar.getTime());
-        isTablet = Utils.isScreenSW(600);
         if (isTablet){
             calendar.add(Calendar.MONTH, -1);
         }else {

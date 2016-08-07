@@ -10,6 +10,6 @@
     <string name="input_hint">FB</string>
     <string name="input_prefill"></string>
     <string name="network_toast">Uh-oh! This app requires an internet connection</string>
-    <string name="text_average_value_tablet">Average price for last month is : <xliff:g id="average">%.2f</xliff:g></string>
-    <string name="text_average_value_phone">Average price for last 15 days is : <xliff:g id="average">%.2f</xliff:g></string>
+    <string name="text_average_value_tablet">Average price for last month is : <xliff:g id="average">%.2f</xliff:g> $</string>
+    <string name="text_average_value_phone">Average price for last 15 days is : <xliff:g id="average">%.2f</xliff:g> $</string>
 </resources>
