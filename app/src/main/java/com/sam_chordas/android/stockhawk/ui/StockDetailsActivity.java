@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Pair;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.db.chart.model.LineSet;
@@ -43,7 +47,11 @@ public class StockDetailsActivity extends AppCompatActivity {
     private float[] data;
     private Pair<Integer,Integer> minMaxValues;
     private  String result;
-
+    private ProgressBar progressBar;
+    private TextView tvError;
+    private Button buttonRefresh;
+    private LinearLayout layoutOffline;
+    private TextView tvQuoteName;
 
     public static Intent getStockDetailsIntent(Context context,String quote){
         Intent intent = new Intent(context,StockDetailsActivity.class);
@@ -56,19 +64,19 @@ public class StockDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stock_details);
         chart = (LineChartView) findViewById(R.id.linechart);
-        TextView tvQuoteName = (TextView) findViewById(R.id.text_quote_name);
+        tvQuoteName = (TextView) findViewById(R.id.text_quote_name);
         tvAverage = (TextView) findViewById(R.id.text_average);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        tvError = (TextView) findViewById(R.id.text_error);
+        buttonRefresh = (Button) findViewById(R.id.button_refresh);
+        layoutOffline = (LinearLayout) findViewById(R.id.layout_offline);
         Intent intent  = getIntent();
         quoteName = intent.getStringExtra(EXTRA_QUOTE);
-        tvQuoteName.setText(quoteName);
-
         if (savedInstanceState == null){
-            setDates();
-            fetchDetails(buildQuery());
+            determineLayout();
         }else {
             if (savedInstanceState.getString(BUNDLE_RESPONSE) == null){
-                setDates();
-                fetchDetails(buildQuery());
+                determineLayout();
             }else {
                 result = savedInstanceState.getString(BUNDLE_RESPONSE);
                 try {
@@ -79,13 +87,45 @@ public class StockDetailsActivity extends AppCompatActivity {
                 }
             }
         }
+        buttonRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (Utils.isNetworkAvailable(getApplication())){
+                    setDates();
+                    fetchDetails(buildQuery());
+                }
+            }
+        });
+
+    }
+
+    private void determineLayout() {
+        if (Utils.isNetworkAvailable(getApplication())){
+            setDates();
+            fetchDetails(buildQuery());
+        }
+        else {
+            setErrorLayout(true);
+        }
+    }
+
+    private void setErrorLayout(boolean offline) {
+        if (offline) {
+            tvError.setText("Couldn't retrieve stock details , No internet connection");
+        }else {
+            tvError.setText("Couldn't retrieve stock details , error connecting to the server.");
+        }
+        layoutOffline.setVisibility(View.VISIBLE);
 
     }
 
     private void fetchDetails(Request request) {
+        layoutOffline.setVisibility(View.GONE);
+        progressBar.setVisibility(View.VISIBLE);
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                setErrorLayout(false);
                 Log.d(LOG_TAG,"request failed",e);
             }
 
@@ -123,10 +163,13 @@ public class StockDetailsActivity extends AppCompatActivity {
     }
 
 
-    private void setAverageValue(final float averageValue){
+    private void populateStockDetails(final float averageValue){
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                progressBar.setVisibility(View.GONE);
+                layoutOffline.setVisibility(View.GONE);
+                tvQuoteName.setText(quoteName);
                 if (isTablet) {
                     tvAverage.setText(getString(R.string.text_average_value_tablet, averageValue));
                 }else {
@@ -173,7 +216,7 @@ public class StockDetailsActivity extends AppCompatActivity {
         data = Utils.jsonToClosedValue(result);
         minMaxValues = Utils.getMinMaxValue(data);
         float averageValue = Utils.getAverageValue(data);
-        setAverageValue(averageValue);
+        populateStockDetails(averageValue);
     }
 
 }

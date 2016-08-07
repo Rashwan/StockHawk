@@ -1,8 +1,12 @@
 package com.sam_chordas.android.stockhawk.rest;
 
+import android.app.Application;
 import android.content.ContentProviderOperation;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 import android.util.Pair;
 
@@ -121,6 +125,12 @@ public class Utils {
     public static Boolean isScreenSW(int smallestWidthDp){
         Configuration config = Resources.getSystem().getConfiguration();
         return config.smallestScreenWidthDp >= smallestWidthDp;
+    }
+    public static Boolean isNetworkAvailable(Application application){
+        ConnectivityManager connectivityManager  = (ConnectivityManager)
+                application.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     public static String truncateBidPrice(String bidPrice) {
