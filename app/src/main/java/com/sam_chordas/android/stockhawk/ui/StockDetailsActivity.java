@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.TextView;
 
 import com.db.chart.model.LineSet;
 import com.db.chart.view.LineChartView;
@@ -33,6 +34,10 @@ public class StockDetailsActivity extends AppCompatActivity {
     private String quoteName;
     private OkHttpClient okHttpClient;
     private LineChartView chart;
+    private TextView tvQuoteName;
+    private TextView tvAverage;
+    private  float averageValue;
+    private Boolean isTablet = false;
 
     public static Intent getStockDetailsIntent(Context context,String quote){
         Intent intent = new Intent(context,StockDetailsActivity.class);
@@ -45,16 +50,23 @@ public class StockDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stock_details);
         chart = (LineChartView) findViewById(R.id.linechart);
+        tvQuoteName = (TextView) findViewById(R.id.text_quote_name);
+        tvAverage = (TextView) findViewById(R.id.text_average);
         Intent intent  = getIntent();
         quoteName = intent.getStringExtra(EXTRA_QUOTE);
+        tvQuoteName.setText(quoteName);
         okHttpClient = new OkHttpClient();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
         String todayDate = dateFormat.format(calendar.getTime());
         Log.d("TODAY DATE",todayDate);
-
-        //// TODO: 8/7/16 Make it dependant on screen size
-        calendar.add(Calendar.DAY_OF_MONTH,-15);
+        isTablet = Utils.isScreenSW(600);
+        // TODO: 8/7/16 Make it dependant on screen size
+        if (isTablet){
+            calendar.add(Calendar.MONTH, -1);
+        }else {
+            calendar.add(Calendar.DAY_OF_MONTH, -15);
+        }
         String minusMonthDate = dateFormat.format(calendar.getTime());
         Log.d("Minus Month DATE",minusMonthDate);
 
@@ -89,7 +101,9 @@ public class StockDetailsActivity extends AppCompatActivity {
                 try {
                     String[] labels = Utils.jsonToDates(result);
                     float[] data = Utils.jsonToClosedValue(result);
-                    Pair<Integer,Integer> minMaxValues = Utils.getMinValue(data);
+                    Pair<Integer,Integer> minMaxValues = Utils.getMinMaxValue(data);
+                    averageValue = Utils.getAverageValue(data);
+                    setAverageValue(averageValue);
                     chart.setAxisBorderValues(minMaxValues.first-1,minMaxValues.second+1);
                     if (minMaxValues.second - minMaxValues.first > 30) {
                         chart.setStep(10);
@@ -103,6 +117,18 @@ public class StockDetailsActivity extends AppCompatActivity {
                     chart.show();
                 } catch (JSONException e) {
                     e.printStackTrace();
+                }
+            }
+        });
+    }
+    private void setAverageValue(final float averageValue){
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (isTablet) {
+                    tvAverage.setText(getString(R.string.text_average_value_tablet, averageValue));
+                }else {
+                    tvAverage.setText(getString(R.string.text_average_value_phone, averageValue));
                 }
             }
         });

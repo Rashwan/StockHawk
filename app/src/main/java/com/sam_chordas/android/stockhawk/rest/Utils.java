@@ -1,6 +1,8 @@
 package com.sam_chordas.android.stockhawk.rest;
 
 import android.content.ContentProviderOperation;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.util.Log;
 import android.util.Pair;
 
@@ -101,7 +103,7 @@ public class Utils {
         }
     }
 
-    public static Pair<Integer,Integer> getMinValue(float[] values){
+    public static Pair<Integer,Integer> getMinMaxValue(float[] values){
         int min = Math.round(values[0]);
         int max = Math.round(values[0]);
         for (float value: values) {
@@ -109,6 +111,17 @@ public class Utils {
             max = Math.round(Math.max(max,value));
         }
         return new Pair<>(min,max);
+    }
+    public static float getAverageValue(float[] values){
+        float sum = 0;
+        for (float value: values) {
+            sum += value;
+        }
+        return sum/values.length;
+    }
+    public static Boolean isScreenSW(int smallestWidthDp){
+        Configuration config = Resources.getSystem().getConfiguration();
+        return config.smallestScreenWidthDp >= smallestWidthDp;
     }
 
     public static String truncateBidPrice(String bidPrice) {
