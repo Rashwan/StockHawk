@@ -113,14 +113,19 @@ public class StockDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void setErrorLayout(boolean offline) {
-        if (offline) {
-            tvError.setText("Couldn't retrieve stock details , No internet connection");
-        }else {
-            tvError.setText("Couldn't retrieve stock details , error connecting to the server.");
-        }
-        layoutOffline.setVisibility(View.VISIBLE);
-
+    private void setErrorLayout(final boolean offline) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (offline) {
+                    tvError.setText("Couldn't retrieve stock details , No internet connection");
+                }else {
+                    tvError.setText("Couldn't retrieve stock details , error connecting to the server.");
+                }
+                progressBar.setVisibility(View.GONE);
+                layoutOffline.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void fetchDetails(Request request) {

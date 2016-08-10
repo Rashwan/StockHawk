@@ -41,8 +41,16 @@
         <provider
             android:name=".data.generated.QuoteProvider"
             android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
-            android:exported="false" />
-
+            android:exported="true" />
+        <receiver android:name="StockHawkWidgetProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/stockhawk_widget_info" />
+        </receiver>
+        <service android:name=".StockHawkWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"/>
         <activity
             android:name=".ui.StockDetailsActivity"
             android:parentActivityName=".ui.MyStocksActivity">
