@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -72,6 +73,13 @@ class WidgetRemoteViewsFactory implements  RemoteViewsService.RemoteViewsFactory
         RemoteViews rv = new RemoteViews(context.getPackageName(),R.layout.widget_list_item);
         rv.setTextViewText(R.id.text_widget_symbol,symbol);
         rv.setTextViewText(R.id.text_widget_stock_price,bidPrice);
+
+        Bundle bundle = new Bundle();
+        bundle.putString(StockHawkWidgetProvider.EXTRA_SYMBOL,symbol);
+        Intent detailsIntent = new Intent();
+        detailsIntent.putExtras(bundle);
+        rv.setOnClickFillInIntent(R.id.layout_widget_item,detailsIntent);
+
         return rv;
     }
 
