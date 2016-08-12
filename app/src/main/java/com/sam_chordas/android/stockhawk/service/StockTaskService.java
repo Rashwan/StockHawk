@@ -5,8 +5,11 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
@@ -127,8 +130,20 @@ public class StockTaskService extends GcmTaskService{
           }
           mContext.getContentResolver().applyBatch(QuoteProvider.AUTHORITY,
               Utils.quoteJsonToContentVals(getResponse));
-        }catch (RemoteException | OperationApplicationException e){
-          Log.e(LOG_TAG, "Error applying batch insert", e);
+        }catch (RemoteException | OperationApplicationException | IllegalArgumentException e){
+            //Didn't find this stock
+            if (e instanceof IllegalArgumentException){
+                final String symbol = e.getMessage();
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(mContext,"didn't find symbol: " + symbol,Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            Log.e(LOG_TAG, "Error applying batch insert", e);
+
         }
       } catch (IOException e){
         e.printStackTrace();

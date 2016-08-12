@@ -40,13 +40,17 @@ public class Utils {
         JSONArray resultsArray = null;
         try {
             jsonObject = new JSONObject(JSON);
-            if (jsonObject != null && jsonObject.length() != 0) {
+            if (jsonObject.length() != 0) {
                 jsonObject = jsonObject.getJSONObject("query");
                 int count = Integer.parseInt(jsonObject.getString("count"));
                 if (count == 1) {
                     jsonObject = jsonObject.getJSONObject("results")
                             .getJSONObject("quote");
-                    batchOperations.add(buildBatchOperation(jsonObject));
+                    if (!jsonObject.getString("Bid").equals("null")){
+                        batchOperations.add(buildBatchOperation(jsonObject));
+                    }else {
+                        throw new IllegalArgumentException(jsonObject.getString("symbol"));
+                    }
                 } else {
                     resultsArray = jsonObject.getJSONObject("results").getJSONArray("quote");
 
@@ -59,6 +63,7 @@ public class Utils {
                 }
             }
         } catch (JSONException e) {
+
             Log.e(LOG_TAG, "String to JSON failed: " + e);
         }
         return batchOperations;

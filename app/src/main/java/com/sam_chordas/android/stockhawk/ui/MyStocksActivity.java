@@ -125,7 +125,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                     // Add the stock to DB
                     mServiceIntent.putExtra("tag", "add");
                     mServiceIntent.putExtra("symbol", input.toString());
-                    startService(mServiceIntent);
+                      startService(mServiceIntent);
                   }
                 }
               })
