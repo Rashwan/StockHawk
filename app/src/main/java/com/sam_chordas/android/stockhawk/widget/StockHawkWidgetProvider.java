@@ -1,4 +1,4 @@
-package com.sam_chordas.android.stockhawk;
+package com.sam_chordas.android.stockhawk.widget;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.widget.RemoteViews;
 
+import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.ui.MyStocksActivity;
 import com.sam_chordas.android.stockhawk.ui.StockDetailsActivity;
 
@@ -17,10 +18,10 @@ import com.sam_chordas.android.stockhawk.ui.StockDetailsActivity;
  */
 
 public class StockHawkWidgetProvider extends AppWidgetProvider {
-    public static final String EXTRA_SYMBOL = "com.sam_chordas.android.stockhawk.EXTRA_SYMBOL";
-    public static final String EXTRA_PRICE = "com.sam_chordas.android.stockhawk.EXTRA_PRICE";
-    public static final String ACTION_DETAILS_ACTIVITY = "com.sam_chordas.android.stockhawk.ACTION_DETAILS_ACTIVITY";
-    public static final String ACTION_MY_STOCKS_ACTIVITY = "com.sam_chordas.android.stockhawk.ACTION_MY_STOCKS_ACTIVITY";
+    public static final String EXTRA_SYMBOL = "com.sam_chordas.android.stockhawk.widget.EXTRA_SYMBOL";
+    public static final String EXTRA_PRICE = "com.sam_chordas.android.stockhawk.widget.EXTRA_PRICE";
+    public static final String ACTION_DETAILS_ACTIVITY = "com.sam_chordas.android.stockhawk.widget.ACTION_DETAILS_ACTIVITY";
+    public static final String ACTION_MY_STOCKS_ACTIVITY = "ccom.sam_chordas.android.stockhawk.widget.ACTION_MY_STOCKS_ACTIVITY";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -47,7 +48,7 @@ public class StockHawkWidgetProvider extends AppWidgetProvider {
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,appWidgetId);
             intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
 
-            RemoteViews rv = new RemoteViews(context.getPackageName(),R.layout.widget);
+            RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.widget);
             rv.setRemoteAdapter(R.id.list_view_widget,intent);
 
             Intent detailsIntent = new Intent(context,StockHawkWidgetProvider.class);

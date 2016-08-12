@@ -1,14 +1,14 @@
-package com.sam_chordas.android.stockhawk;
+package com.sam_chordas.android.stockhawk.widget;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 
@@ -23,7 +23,7 @@ public class StockHawkWidgetService extends RemoteViewsService{
     }
 }
 class WidgetRemoteViewsFactory implements  RemoteViewsService.RemoteViewsFactory{
-
+    private static final String LOG_TAG = WidgetRemoteViewsFactory.class.getSimpleName();
     private Context context;
     private int widgetId;
     private Cursor cursor;
@@ -58,7 +58,6 @@ class WidgetRemoteViewsFactory implements  RemoteViewsService.RemoteViewsFactory
 
     @Override
     public int getCount() {
-        Log.d("WIDGET",cursor.getCount() + "");
         return cursor.getCount();
     }
 
@@ -70,7 +69,7 @@ class WidgetRemoteViewsFactory implements  RemoteViewsService.RemoteViewsFactory
             symbol = cursor.getString(symbolColumnIndex);
             bidPrice = cursor.getString(priceColumnIndex);
         }
-        RemoteViews rv = new RemoteViews(context.getPackageName(),R.layout.widget_list_item);
+        RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.widget_list_item);
         rv.setTextViewText(R.id.text_widget_symbol,symbol);
         rv.setTextViewText(R.id.text_widget_stock_price,bidPrice);
 

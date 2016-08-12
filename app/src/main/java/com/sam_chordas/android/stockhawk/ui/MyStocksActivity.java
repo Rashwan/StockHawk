@@ -46,6 +46,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
   /**
    * Used to store the last screen title. For use in {@link #restoreActionBar()}.
    */
+  public static final String EXTRA_TAG = "com.sam_chordas.android.stockhawk.ui.EXTRA_TAG";
   private CharSequence mTitle;
   private Intent mServiceIntent;
   private ItemTouchHelper mItemTouchHelper;
@@ -71,7 +72,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     mServiceIntent = new Intent(this, StockIntentService.class);
     if (savedInstanceState == null){
       // Run the initialize task service so that some stocks appear upon an empty database
-      mServiceIntent.putExtra("tag", "init");
+      mServiceIntent.putExtra(EXTRA_TAG, "init");
       if (isConnected){
         startService(mServiceIntent);
       } else{
@@ -115,15 +116,15 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                       new String[] { QuoteColumns.SYMBOL }, QuoteColumns.SYMBOL + "= ?",
                       new String[] { input.toString() }, null);
                   if (c.getCount() != 0) {
+                    c.close();
                     Toast toast =
-                        Toast.makeText(MyStocksActivity.this, "This stock is already saved!",
+                        Toast.makeText(MyStocksActivity.this, R.string.toast_stock_already_saved,
                             Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
                     toast.show();
-                    return;
                   } else {
                     // Add the stock to DB
-                    mServiceIntent.putExtra("tag", "add");
+                    mServiceIntent.putExtra(EXTRA_TAG, "add");
                     mServiceIntent.putExtra("symbol", input.toString());
                       startService(mServiceIntent);
                   }

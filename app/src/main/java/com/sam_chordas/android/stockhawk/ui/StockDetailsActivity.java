@@ -33,10 +33,17 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class StockDetailsActivity extends AppCompatActivity {
+    private static final String LOG_TAG = StockDetailsActivity.class.getSimpleName();
     private static final String EXTRA_SYMBOL = "com.sam_chordas.android.stockhawk.ui.EXTRA_SYMBOL";
     private static final String EXTRA_PRICE = "com.sam_chordas.android.stockhawk.ui.EXTRA_PRICE";
-    private static final String LOG_TAG = StockDetailsActivity.class.getSimpleName();
     private static final String BUNDLE_RESPONSE = "BUNDLE_RESPONSE";
+    private static final String BASE_URL = "https://query.yahooapis.com/v1/public/yql?q=";
+    private static final String SELECT = "select Date,Close from yahoo.finance.historicaldata where symbol = ";
+    private static final String START_DATE = "and startDate = ";
+    private static final String END_DATE = "and endDate = ";
+    private static final String SORT = "| sort(field=\"Date\")";
+    private static final String FORMAT = "&format=json&diagnostics=true&env=http%3A%2F%2Fdatatables.org%2Falltables.env&callback=";
+    private static final String ENCODING = "UTF-8";
     private String quoteName;
     private String currentPrice;
     private OkHttpClient okHttpClient;
@@ -124,9 +131,9 @@ public class StockDetailsActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (offline) {
-                    tvError.setText("Couldn't retrieve stock details , No internet connection");
+                    tvError.setText(R.string.msg_no_internet_connection);
                 }else {
-                    tvError.setText("Couldn't retrieve stock details , error connecting to the server.");
+                    tvError.setText(R.string.msg_server_error);
                 }
                 progressBar.setVisibility(View.GONE);
                 layoutOffline.setVisibility(View.VISIBLE);
@@ -184,7 +191,7 @@ public class StockDetailsActivity extends AppCompatActivity {
             public void run() {
                 progressBar.setVisibility(View.GONE);
                 layoutOffline.setVisibility(View.GONE);
-                tvCurrentPrice.setText("Current price is: " + currentPrice + " $");
+                tvCurrentPrice.setText(getString(R.string.text_current_price,currentPrice));
                 if (isTablet) {
                     tvAverage.setText(getString(R.string.text_average_value_tablet, averageValue));
                 }else {
@@ -208,17 +215,16 @@ public class StockDetailsActivity extends AppCompatActivity {
     private Request buildQuery() {
         okHttpClient = new OkHttpClient();
         StringBuilder urlString = new StringBuilder();
-        urlString.append("https://query.yahooapis.com/v1/public/yql?q=");
+        urlString.append(BASE_URL);
         try {
-            urlString.append(URLEncoder.encode("select Date,Close from yahoo.finance.historicaldata where symbol "
-                    + " = ", "UTF-8"));
-            urlString.append(URLEncoder.encode("\"" + quoteName + "\" ","UTF-8"));
-            urlString.append(URLEncoder.encode("and startDate = ","UTF-8"));
-            urlString.append(URLEncoder.encode("\"" + startDate + "\"","UTF-8"));
-            urlString.append(URLEncoder.encode("and endDate = ","UTF-8"));
-            urlString.append(URLEncoder.encode("\"" + endDate + "\" ","UTF-8"));
-            urlString.append(URLEncoder.encode("| sort(field=\"Date\")","UTF-8"));
-            urlString.append("&format=json&diagnostics=true&env=http%3A%2F%2Fdatatables.org%2Falltables.env&callback=");
+            urlString.append(URLEncoder.encode(SELECT, ENCODING));
+            urlString.append(URLEncoder.encode("\"" + quoteName + "\" ", ENCODING));
+            urlString.append(URLEncoder.encode(START_DATE, ENCODING));
+            urlString.append(URLEncoder.encode("\"" + startDate + "\"", ENCODING));
+            urlString.append(URLEncoder.encode(END_DATE, ENCODING));
+            urlString.append(URLEncoder.encode("\"" + endDate + "\" ", ENCODING));
+            urlString.append(URLEncoder.encode(SORT, ENCODING));
+            urlString.append(FORMAT);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

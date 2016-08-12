@@ -14,7 +14,7 @@ import android.widget.Toast;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
-import com.sam_chordas.android.stockhawk.StockHawkWidgetProvider;
+import com.sam_chordas.android.stockhawk.widget.StockHawkWidgetProvider;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 import com.sam_chordas.android.stockhawk.rest.Utils;
@@ -33,6 +33,9 @@ import okhttp3.Response;
  * and is used for the initialization and adding task as well.
  */
 public class StockTaskService extends GcmTaskService{
+  private static final String BASE_URL = "https://query.yahooapis.com/v1/public/yql?q=";
+  private static final String QUERY = "select * from yahoo.finance.quotes where symbol in (";
+  private static final String FORMAT = "&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=";
   private String LOG_TAG = StockTaskService.class.getSimpleName();
 
   private OkHttpClient client = new OkHttpClient();
@@ -63,9 +66,8 @@ public class StockTaskService extends GcmTaskService{
     StringBuilder urlStringBuilder = new StringBuilder();
     try{
       // Base URL for the Yahoo query
-      urlStringBuilder.append("https://query.yahooapis.com/v1/public/yql?q=");
-      urlStringBuilder.append(URLEncoder.encode("select * from yahoo.finance.quotes where symbol "
-        + "in (", "UTF-8"));
+      urlStringBuilder.append(BASE_URL);
+      urlStringBuilder.append(URLEncoder.encode(QUERY, "UTF-8"));
     } catch (UnsupportedEncodingException e) {
       e.printStackTrace();
     }
@@ -108,8 +110,7 @@ public class StockTaskService extends GcmTaskService{
       }
     }
     // finalize the URL for the API query.
-    urlStringBuilder.append("&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables."
-        + "org%2Falltableswithkeys&callback=");
+    urlStringBuilder.append(FORMAT);
 
     String urlString;
     String getResponse;

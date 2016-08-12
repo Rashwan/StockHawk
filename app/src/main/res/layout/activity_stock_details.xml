@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone"
-        android:contentDescription="Loading stock details"/>
+        android:contentDescription="@string/content_desc_progress_bar_details"/>
     <LinearLayout
         android:id="@+id/layout_offline"
         android:layout_width="match_parent"
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_cloud_off"
             android:layout_margin="16dp"
-            android:contentDescription="couldn't connect to server"/>
+            android:contentDescription="@string/content_desc_error_connection"/>
         <TextView
             android:id="@+id/text_error"
             android:layout_width="wrap_content"
@@ -37,10 +37,10 @@
             android:id="@+id/button_refresh"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Refresh"
+            android:text="@string/btn_refresh"
             android:padding="16dp"
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            android:contentDescription="Refresh"/>
+            android:contentDescription="@string/content_desc_btn_refresh"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -53,7 +53,8 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="2"
-            android:contentDescription="Chart for stock price over time"
+            android:contentDescription="@string/content_desc_chart"
+            android:padding="16dp"
             chart:paddingStart="16dp"
             chart:paddingEnd="16dp" />
         <LinearLayout
@@ -69,7 +70,7 @@
                 android:textSize="20sp"
                 android:gravity="start|center_vertical"
                 android:padding="16dp"
-                tools:text="The average price for last month is: 50 $"/>
+                tools:text="@string/placeholder_average_price"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -77,7 +78,7 @@
                 android:gravity="start|center_vertical"
                 android:id="@+id/text_current_price"
                 android:padding="16dp"
-                tools:text="The Current price is: 55 $"/>
+                tools:text="@string/placeholder_current_price"/>
 
         </LinearLayout>
 
