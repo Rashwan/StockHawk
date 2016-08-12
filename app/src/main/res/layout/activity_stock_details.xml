@@ -9,7 +9,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:contentDescription="Loading stock details"/>
     <LinearLayout
         android:id="@+id/layout_offline"
         android:layout_width="match_parent"
@@ -21,7 +22,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_cloud_off"
-            android:layout_margin="16dp" />
+            android:layout_margin="16dp"
+            android:contentDescription="couldn't connect to server"/>
         <TextView
             android:id="@+id/text_error"
             android:layout_width="wrap_content"
@@ -37,7 +39,8 @@
             android:layout_height="wrap_content"
             android:text="Refresh"
             android:padding="16dp"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:contentDescription="Refresh"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -50,8 +53,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="2"
+            android:contentDescription="Chart for stock price over time"
             chart:paddingStart="16dp"
-            chart:paddingEnd="16dp"/>
+            chart:paddingEnd="16dp" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
