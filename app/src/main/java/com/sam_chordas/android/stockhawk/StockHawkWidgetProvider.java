@@ -6,9 +6,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
 
 import com.sam_chordas.android.stockhawk.ui.MyStocksActivity;
@@ -20,6 +18,7 @@ import com.sam_chordas.android.stockhawk.ui.StockDetailsActivity;
 
 public class StockHawkWidgetProvider extends AppWidgetProvider {
     public static final String EXTRA_SYMBOL = "com.sam_chordas.android.stockhawk.EXTRA_SYMBOL";
+    public static final String EXTRA_PRICE = "com.sam_chordas.android.stockhawk.EXTRA_PRICE";
     public static final String ACTION_DETAILS_ACTIVITY = "com.sam_chordas.android.stockhawk.ACTION_DETAILS_ACTIVITY";
     public static final String ACTION_MY_STOCKS_ACTIVITY = "com.sam_chordas.android.stockhawk.ACTION_MY_STOCKS_ACTIVITY";
 
@@ -27,7 +26,8 @@ public class StockHawkWidgetProvider extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(ACTION_DETAILS_ACTIVITY)){
             String symbol = intent.getStringExtra(EXTRA_SYMBOL);
-            Intent stockDetailsIntent = StockDetailsActivity.getStockDetailsIntent(context,symbol);
+            String price = intent.getStringExtra(EXTRA_PRICE);
+            Intent stockDetailsIntent = StockDetailsActivity.getStockDetailsIntent(context,symbol,price);
             stockDetailsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             stockDetailsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             context.startActivity(stockDetailsIntent);
@@ -42,8 +42,6 @@ public class StockHawkWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sp.edit();
         for (int appWidgetId: appWidgetIds) {
             Intent intent = new Intent(context,StockHawkWidgetService.class);
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,appWidgetId);

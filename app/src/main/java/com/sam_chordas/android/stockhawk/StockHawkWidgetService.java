@@ -76,6 +76,7 @@ class WidgetRemoteViewsFactory implements  RemoteViewsService.RemoteViewsFactory
 
         Bundle bundle = new Bundle();
         bundle.putString(StockHawkWidgetProvider.EXTRA_SYMBOL,symbol);
+        bundle.putString(StockHawkWidgetProvider.EXTRA_PRICE,bidPrice);
         Intent detailsIntent = new Intent();
         detailsIntent.putExtras(bundle);
         rv.setOnClickFillInIntent(R.id.layout_widget_item,detailsIntent);

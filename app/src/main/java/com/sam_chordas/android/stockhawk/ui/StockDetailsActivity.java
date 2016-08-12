@@ -33,10 +33,12 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class StockDetailsActivity extends AppCompatActivity {
-    private static final String EXTRA_QUOTE = "com.sam_chordas.android.stockhawk.ui.EXTRA_QUOTE";
+    private static final String EXTRA_SYMBOL = "com.sam_chordas.android.stockhawk.ui.EXTRA_SYMBOL";
+    private static final String EXTRA_PRICE = "com.sam_chordas.android.stockhawk.ui.EXTRA_PRICE";
     private static final String LOG_TAG = StockDetailsActivity.class.getSimpleName();
     private static final String BUNDLE_RESPONSE = "BUNDLE_RESPONSE";
     private String quoteName;
+    private String currentPrice;
     private OkHttpClient okHttpClient;
     private LineChartView chart;
     private TextView tvAverage;
@@ -51,11 +53,12 @@ public class StockDetailsActivity extends AppCompatActivity {
     private TextView tvError;
     private Button buttonRefresh;
     private LinearLayout layoutOffline;
-    private TextView tvQuoteName;
+    private TextView tvCurrentPrice;
 
-    public static Intent getStockDetailsIntent(Context context,String quote){
+    public static Intent getStockDetailsIntent(Context context,String symbol,String price){
         Intent intent = new Intent(context,StockDetailsActivity.class);
-        intent.putExtra(EXTRA_QUOTE,quote);
+        intent.putExtra(EXTRA_SYMBOL,symbol);
+        intent.putExtra(EXTRA_PRICE,price);
         return intent;
     }
 
@@ -65,16 +68,27 @@ public class StockDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_stock_details);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         chart = (LineChartView) findViewById(R.id.linechart);
-        tvQuoteName = (TextView) findViewById(R.id.text_quote_name);
         tvAverage = (TextView) findViewById(R.id.text_average);
+        tvCurrentPrice = (TextView) findViewById(R.id.text_current_price);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         tvError = (TextView) findViewById(R.id.text_error);
         buttonRefresh = (Button) findViewById(R.id.button_refresh);
         layoutOffline = (LinearLayout) findViewById(R.id.layout_offline);
         Intent intent  = getIntent();
-        quoteName = intent.getStringExtra(EXTRA_QUOTE);
+        quoteName = intent.getStringExtra(EXTRA_SYMBOL);
+        currentPrice = intent.getStringExtra(EXTRA_PRICE);
         getSupportActionBar().setTitle(quoteName);
         isTablet = Utils.isScreenSW(600);
+
+        buttonRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (Utils.isNetworkAvailable(getApplication())){
+                    setDates();
+                    fetchDetails(buildQuery());
+                }
+            }
+        });
 
         if (savedInstanceState == null){
             determineLayout();
@@ -91,15 +105,7 @@ public class StockDetailsActivity extends AppCompatActivity {
                 }
             }
         }
-        buttonRefresh.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (Utils.isNetworkAvailable(getApplication())){
-                    setDates();
-                    fetchDetails(buildQuery());
-                }
-            }
-        });
+
 
     }
 
@@ -178,7 +184,7 @@ public class StockDetailsActivity extends AppCompatActivity {
             public void run() {
                 progressBar.setVisibility(View.GONE);
                 layoutOffline.setVisibility(View.GONE);
-                tvQuoteName.setText(quoteName);
+                tvCurrentPrice.setText("Current price is: " + currentPrice + " $");
                 if (isTablet) {
                     tvAverage.setText(getString(R.string.text_average_value_tablet, averageValue));
                 }else {

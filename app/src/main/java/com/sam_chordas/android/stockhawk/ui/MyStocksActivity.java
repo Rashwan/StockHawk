@@ -89,8 +89,10 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                 //TODO:
                 // do something on item click
                   TextView tvQuoteName = (TextView) v.findViewById(R.id.stock_symbol);
+                  TextView tvQuotePrice = (TextView) v.findViewById(R.id.bid_price);
                   String quoteName = tvQuoteName.getText().toString();
-                  Intent detailsIntent = StockDetailsActivity.getStockDetailsIntent(mContext,quoteName);
+                  String quotePrice = tvQuotePrice.getText().toString();
+                  Intent detailsIntent = StockDetailsActivity.getStockDetailsIntent(mContext,quoteName,quotePrice);
                   startActivity(detailsIntent);
               }
             }));
