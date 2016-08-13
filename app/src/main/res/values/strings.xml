@@ -17,13 +17,15 @@
     <string name="msg_server_error">Couldn\'t retrieve stock details , error connecting to the server.</string>
     <string name="text_current_price">Current price is: <xliff:g id="current">%s</xliff:g> $</string>
     <string name="btn_refresh">Refresh</string>
+    <string name="toast_unknown_symbol">"didn't find symbol: <xliff:g id="symbol">%s</xliff:g>"</string>
+
 
     <!-- Content Description -->
-    <string name="content_desc_fab" translatable="false">Add new stock to track</string>
-    <string name="content_desc_progress_bar_details" translatable="false">Loading stock details</string>
-    <string name="content_desc_error_connection" translatable="false">couldn\'t connect to server</string>
-    <string name="content_desc_btn_refresh" translatable="false">Refresh</string>
-    <string name="content_desc_chart" translatable="false">Chart for stock price over time</string>
+    <string name="content_desc_fab">Add new stock to track</string>
+    <string name="content_desc_progress_bar_details">Loading stock details</string>
+    <string name="content_desc_error_connection">couldn\'t connect to server</string>
+    <string name="content_desc_btn_refresh">Refresh</string>
+    <string name="content_desc_chart">Chart for stock price over time</string>
 
     <!-- Placeholders -->
     <string name="placeholder_symbol" translatable="false">GOOG</string>

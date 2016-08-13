@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.TaskParams;
+import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.widget.StockHawkWidgetProvider;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
@@ -139,7 +140,7 @@ public class StockTaskService extends GcmTaskService{
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(mContext,"didn't find symbol: " + symbol,Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext,getString(R.string.toast_unknown_symbol,symbol),Toast.LENGTH_SHORT).show();
                     }
                 });
             }
